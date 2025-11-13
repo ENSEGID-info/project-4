@@ -1,15 +1,6 @@
 import matplotlib
 
 
-def etape2_main(data):
-    print("Exécution de l'étape 2...")
-    # Exemple : traitement de la donnée
-    result = max(data)
-    return result
-
-
-
-
 # ===============================================================
 # Reproduction du graphique : Flow surface elevation & Sediment flux
 # ---------------------------------------------------------------
@@ -35,10 +26,10 @@ import os
 # ---------------------------------------------------------------
 
 # 📍 🔽 Modifie ici les noms de tes fichiers 🔽
-file_times_samples = "times_samples.txt"
-file_Qs_samples = "Qs_samples.txt"
-file_times_flow_stage = "times_flow_stage.txt"
-file_h_flow_stage = "h_flow_stage.txt"
+file_times_samples = "E:\ENSEGID\Projet de programmation\Figure 6\Fig6_time_samples.txt"
+file_Qs_samples = "E:\ENSEGID\Projet de programmation\Figure 6\Fig6_Qs_samples.txt"
+file_times_flow_stage = "E:\ENSEGID\Projet de programmation\Figure 6\Fig6_time_flow_stage.txt"
+file_h_flow_stage = "E:\ENSEGID\Projet de programmation\Figure 6\Fig6_h_flow_stage.txt"
 
 # Vérification de l’existence des fichiers
 for f in [file_times_samples, file_Qs_samples, file_times_flow_stage, file_h_flow_stage]:
@@ -61,11 +52,34 @@ if len(times_flow_stage) != len(h_flow_stage):
 # 2️⃣ PARAMÈTRES PERSONNALISABLES
 # ---------------------------------------------------------------
 
-# Valeur constante de flux à l’entrée (ligne bleue)
-Qs_inlet_value = 80  # 💡 à ajuster selon tes données
+Qs_inlet_value = np.mean(len(Qs_samples)) # Flux constant d’entrée (ligne bleue)
 
-# Intervalles de temps sans mesures (zones grisées)
-no_measure_periods = [(750, 1100), (1300, 1500)]  # 💡 adapte selon ton cas
+# ---------------------------------------------------------------
+# 3️⃣ DÉTECTION AUTOMATIQUE DES ZONES SANS MESURES
+# ---------------------------------------------------------------
+
+# Calcul des écarts de temps entre mesures
+time_gaps = np.diff(times_samples)
+
+# Seuil automatique : 3× la moyenne des écarts
+gap_threshold = 3 * np.mean(time_gaps)
+
+# Détection des intervalles sans mesures
+no_measure_periods = []
+time_gaps = np.diff(times_samples)
+gap_treshold = 3*np.mean(time_gaps)
+for i in range(len(times_samples) - 1):
+    if times_samples[i + 1] - times_samples[i] >= gap_threshold:
+        start = times_samples[i]+0.001
+        end = times_samples[i+1]-0.001
+        no_measure_periods.append((start, end))
+        last_measure_time = times_samples[-1]
+        end_of_time = max(times_flow_stage[-1], last_measure_time*1.05)
+        no_measure_periods.append((last_measure_time + 0.001, end_of_time))
+        
+
+print("\n Zones sans mesures détectées :", no_measure_periods, "\n")
+
 
 # ---------------------------------------------------------------
 # 3️⃣ CRÉATION DU GRAPHIQUE
@@ -75,31 +89,43 @@ fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
 
 # ---- (a) Flow surface elevation ----
 ax1.plot(times_flow_stage, h_flow_stage, color='royalblue', linewidth=2)
-ax1.set_ylabel("h (cm)", fontsize=12)
+ax1.set_ylabel("H(cm)", fontsize=12)
 ax1.set_title("(a) Flow surface elevation", fontsize=13)
-ax1.grid(True, linestyle='--', alpha=0.5)
+
 
 # ---- (b) Sediment flux ----
 # Zones grisées = pas de mesures
 for (start, end) in no_measure_periods:
-    ax2.axvspan(start, end, color='gray', alpha=0.4,
-                label="No measures" if start == no_measure_periods[0][0] else "")
+    ax2.axvspan(start, end, color='lightgray', alpha=0.4,label="No measures" if start == no_measure_periods[0][0] else "")
+    
 
-# Barres rouges : flux mesurés
-ax2.bar(times_samples, Qs_samples, width=5, color='lightcoral', label='Sampled outlet sediment flux')
+# On ne garde que les valeurs dans les zones mesurées
+mask_valid = np.ones_like(Qs_samples, dtype=bool)
+for (start, end) in no_measure_periods:
+    mask_valid &= ~((times_samples >= start) & (times_samples <= end))
+
+
+# Barres rouges uniquement sur les zones avec mesures
+ax2.bar(times_samples[mask_valid], Qs_samples[mask_valid],width=3, color='lightcoral', label='Sampled outlet sediment flux')
+
 
 # Ligne bleue : flux constant d’entrée
-ax2.axhline(Qs_inlet_value, color='blue', linewidth=1.5, label='Storage area inlet sediment flux')
+ax2.axhline(Qs_inlet_value, color='blue', linewidth=1, label='Storage area inlet sediment flux')
 
 # Titres, axes, légendes
 ax2.set_ylabel("Qs (g/s)", fontsize=12)
 ax2.set_xlabel("Time (s)", fontsize=12)
-ax2.set_title("(b) Sediment flux", fontsize=13)
+ax2.set_title("(b) Solid discharge", fontsize=13)
 ax2.legend(loc='upper right', fontsize=9)
-ax2.grid(True, linestyle='--', alpha=0.5)
+
+
+
+if no_measure_periods:
+    # La fin de la dernière zone grise
+    end_time = no_measure_periods[-1][1]
+    ax2.set_xlim(left=0, right=end_time)
+    ax1.set_xlim(left=0, right=end_time)
+
 
 plt.tight_layout()
 plt.show()
-    
-    
-    
