@@ -1,4 +1,7 @@
 import matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+import os
 
 
 # ===============================================================
@@ -16,11 +19,6 @@ import matplotlib
 # (a) Flow surface elevation
 # (b) Sediment flux
 # ===============================================================
-
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-
 # ---------------------------------------------------------------
 # 1️⃣ CHARGEMENT DES FICHIERS UTILISATEUR
 # ---------------------------------------------------------------
