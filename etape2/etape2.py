@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 
 
+
 # ===============================================================
 # Reproduction du graphique : Flow surface elevation & Sediment flux
 # ---------------------------------------------------------------
@@ -81,60 +82,59 @@ for i in range(len(times_samples) - 1):
 
 print("\n Zones sans mesures détectées :", no_measure_periods, "\n")
 
-
-# ---------------------------------------------------------------
-# 3️⃣ CRÉATION DU GRAPHIQUE
-# ---------------------------------------------------------------
-
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
-
-# ---- (a) Flow surface elevation ----
-ax1.plot(times_flow_stage, h_flow_stage, color='royalblue', linewidth=2)
-ax1.set_ylabel("H(cm)", fontsize=12)
-ax1.set_title("(a) Flow surface elevation", fontsize=13)
-
-
-# ---- (b) Sediment flux ----
-# Zones grisées = pas de mesures
-for (start, end) in no_measure_periods:
-    ax2.axvspan(start, end, color='lightgray', alpha=0.4,label="No measures" if start == no_measure_periods[0][0] else "")
+def creation_du_graphique(times_flow_stage, h_flow_stage, no_measure_periods, Qs_samples, times_samples, Qs_inlet_value):
+    # ---------------------------------------------------------------
+    # 3️⃣ CRÉATION DU GRAPHIQUE
+    # ---------------------------------------------------------------
     
-
-# On ne garde que les valeurs dans les zones mesurées
-mask_valid = np.ones_like(Qs_samples, dtype=bool)
-for (start, end) in no_measure_periods:
-    mask_valid &= ~((times_samples >= start) & (times_samples <= end))
-
-
-# Barres rouges uniquement sur les zones avec mesures
-ax2.bar(times_samples[mask_valid], Qs_samples[mask_valid],width=3, color='lightcoral', label='Sampled outlet sediment flux')
-
-
-# Ligne bleue : flux constant d’entrée
-ax2.axhline(Qs_inlet_value, color='blue', linewidth=1, label='Storage area inlet sediment flux')
-
-# Titres, axes, légendes
-ax2.set_ylabel("Qs (g/s)", fontsize=12)
-ax2.set_xlabel("Time (s)", fontsize=12)
-ax2.set_title("(b) Solid discharge", fontsize=13)
-ax2.legend(loc='upper right', fontsize=9)
-
-
-
-if no_measure_periods:
-    # La fin de la dernière zone grise
-    end_time = no_measure_periods[-1][1]
-    ax2.set_xlim(left=0, right=end_time)
-    ax1.set_xlim(left=0, right=end_time)
-
-
-plt.tight_layout()
-plt.show()
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+    
+    # ---- (a) Flow surface elevation ----
+    ax1.plot(times_flow_stage, h_flow_stage, color='royalblue', linewidth=2)
+    ax1.set_ylabel("H(cm)", fontsize=12)
+    ax1.set_title("(a) Flow surface elevation", fontsize=13)
+    
+    
+    # ---- (b) Sediment flux ----
+    # Zones grisées = pas de mesures
+    for (start, end) in no_measure_periods:
+        ax2.axvspan(start, end, color='lightgray', alpha=0.4,label="No measures" if start == no_measure_periods[0][0] else "")
+        
+    
+    # On ne garde que les valeurs dans les zones mesurées
+    mask_valid = np.ones_like(Qs_samples, dtype=bool)
+    for (start, end) in no_measure_periods:
+        mask_valid &= ~((times_samples >= start) & (times_samples <= end))
+    
+    
+    # Barres rouges uniquement sur les zones avec mesures
+    ax2.bar(times_samples[mask_valid], Qs_samples[mask_valid],width=3, color='lightcoral', label='Sampled outlet sediment flux')
+    
+    
+    # Ligne bleue : flux constant d’entrée
+    ax2.axhline(Qs_inlet_value, color='blue', linewidth=1, label='Storage area inlet sediment flux')
+    
+    # Titres, axes, légendes
+    ax2.set_ylabel("Qs (g/s)", fontsize=12)
+    ax2.set_xlabel("Time (s)", fontsize=12)
+    ax2.set_title("(b) Solid discharge", fontsize=13)
+    ax2.legend(loc='upper right', fontsize=9)
+    
+    
+    
+    if no_measure_periods:
+        # La fin de la dernière zone grise
+        end_time = no_measure_periods[-1][1]
+        ax2.set_xlim(left=0, right=end_time)
+        ax1.set_xlim(left=0, right=end_time)
+    
+    
+    plt.tight_layout()
+    plt.show()
+    
+creation_du_graphique(times_flow_stage, h_flow_stage, no_measure_periods, Qs_samples, times_samples, Qs_inlet_value)
 
 # Programme figure 7
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 # -------------------------------------------------------------------
 # 1) CHARGEMENT DES DONNEES
