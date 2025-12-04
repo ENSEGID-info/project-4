@@ -1,6 +1,8 @@
 
 # Programme figure 6
 
+
+
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,63 +30,78 @@ import os
 # ---------------------------------------------------------------
 
 # 📍 🔽 Modifie ici les noms de tes fichiers 🔽
-file_times_samples = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_time_samples.txt"
-file_Qs_samples = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_Qs_samples.txt"
-file_times_flow_stage = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_time_flow_stage.txt"
-file_h_flow_stage = r"E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_h_flow_stage.txt"
 
 
+def figure_6 (file_times_samples, file_Qs_samples,file_times_flow_stage,file_h_flow_stage):
+    """
+    
 
-# Vérification de l’existence des fichiers
-for f in [file_times_samples, file_Qs_samples, file_times_flow_stage, file_h_flow_stage]:
-    if not os.path.exists(f):
-        raise FileNotFoundError(f"Le fichier '{f}' est introuvable. Vérifie son nom et son emplacement.")
+    Parameters
+    ----------
+    file_gsd : str
+        DESCRIPTION.
+    file_times : str
+        DESCRIPTION.
 
-# Lecture des données
-times_samples = np.loadtxt(file_times_samples)
-Qs_samples = np.loadtxt(file_Qs_samples)
-times_flow_stage = np.loadtxt(file_times_flow_stage)
-h_flow_stage = np.loadtxt(file_h_flow_stage)
+    Returns
+    -------
+    None.
 
-# Vérifications de cohérence
-if len(times_samples) != len(Qs_samples):
-    raise ValueError("Les fichiers 'times_samples' et 'Qs_samples' doivent avoir la même longueur.")
-if len(times_flow_stage) != len(h_flow_stage):
-    raise ValueError("Les fichiers 'times_flow_stage' et 'h_flow_stage' doivent avoir la même longueur.")
+    """
 
-# ---------------------------------------------------------------
-# 2️⃣ PARAMÈTRES PERSONNALISABLES
-# ---------------------------------------------------------------
-
-Qs_inlet_value = np.mean(len(Qs_samples)) # Flux constant d’entrée (ligne bleue)
-
-# ---------------------------------------------------------------
-# 3️⃣ DÉTECTION AUTOMATIQUE DES ZONES SANS MESURES
-# ---------------------------------------------------------------
-
-# Calcul des écarts de temps entre mesures
-time_gaps = np.diff(times_samples)
-
-# Seuil automatique : 3× la moyenne des écarts
-gap_threshold = 3 * np.mean(time_gaps)
-
-# Détection des intervalles sans mesures
-no_measure_periods = []
-time_gaps = np.diff(times_samples)
-gap_treshold = 3*np.mean(time_gaps)
-for i in range(len(times_samples) - 1):
-    if times_samples[i + 1] - times_samples[i] >= gap_threshold:
-        start = times_samples[i]+0.001
-        end = times_samples[i+1]-0.001
-        no_measure_periods.append((start, end))
-        last_measure_time = times_samples[-1]
-        end_of_time = max(times_flow_stage[-1], last_measure_time*1.05)
-        no_measure_periods.append((last_measure_time + 0.001, end_of_time))
-        
-
-print("\n Zones sans mesures détectées :", no_measure_periods, "\n")
-
+    # Vérification de l’existence des fichiers
+    for f in [file_times_samples, file_Qs_samples, file_times_flow_stage, file_h_flow_stage]:
+        if not os.path.exists(f):
+            raise FileNotFoundError(f"Le fichier '{f}' est introuvable. Vérifie son nom et son emplacement.")
+    
+    # Lecture des données
+    times_samples = np.loadtxt(file_times_samples)
+    Qs_samples = np.loadtxt(file_Qs_samples)
+    times_flow_stage = np.loadtxt(file_times_flow_stage)
+    h_flow_stage = np.loadtxt(file_h_flow_stage)
+    
+    # Vérifications de cohérence
+    if len(times_samples) != len(Qs_samples):
+        raise ValueError("Les fichiers 'times_samples' et 'Qs_samples' doivent avoir la même longueur.")
+    if len(times_flow_stage) != len(h_flow_stage):
+        raise ValueError("Les fichiers 'times_flow_stage' et 'h_flow_stage' doivent avoir la même longueur.")
+    
+    # ---------------------------------------------------------------
+    # 2️⃣ PARAMÈTRES PERSONNALISABLES
+    # ---------------------------------------------------------------
+    
+    Qs_inlet_value = np.mean(len(Qs_samples)) # Flux constant d’entrée (ligne bleue)
+    
+    # ---------------------------------------------------------------
+    # 3️⃣ DÉTECTION AUTOMATIQUE DES ZONES SANS MESURES
+    # ---------------------------------------------------------------
+    
+    # Calcul des écarts de temps entre mesures
+    time_gaps = np.diff(times_samples)
+    
+    # Seuil automatique : 3× la moyenne des écarts
+    gap_threshold = 3 * np.mean(time_gaps)
+    
+    # Détection des intervalles sans mesures
+    no_measure_periods = []
+    time_gaps = np.diff(times_samples)
+    gap_treshold = 3*np.mean(time_gaps)
+    for i in range(len(times_samples) - 1):
+        if times_samples[i + 1] - times_samples[i] >= gap_threshold:
+            start = times_samples[i]+0.001
+            end = times_samples[i+1]-0.001
+            no_measure_periods.append((start, end))
+            last_measure_time = times_samples[-1]
+            end_of_time = max(times_flow_stage[-1], last_measure_time*1.05)
+            no_measure_periods.append((last_measure_time + 0.001, end_of_time))
+            
+    
+    print("\n Zones sans mesures détectées :", no_measure_periods, "\n")
+    
 def creation_du_graphique(times_flow_stage, h_flow_stage, no_measure_periods, Qs_samples, times_samples, Qs_inlet_value):
+    
+    
+    
     # ---------------------------------------------------------------
     # 3️⃣ CRÉATION DU GRAPHIQUE
     # ---------------------------------------------------------------
@@ -133,7 +150,13 @@ def creation_du_graphique(times_flow_stage, h_flow_stage, no_measure_periods, Qs
     
     plt.tight_layout()
     plt.show()
-    
+
+file_times_samples = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_time_samples.txt"
+file_Qs_samples = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_Qs_samples.txt"
+file_times_flow_stage = "E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_time_flow_stage.txt"
+file_h_flow_stage = r"E:\ENSEGID\Projet de programmation\Data\Figure 6\Fig6_h_flow_stage.txt"
+
+figure_6 (file_times_samples, file_Qs_samples,file_times_flow_stage,file_h_flow_stage)
 creation_du_graphique(times_flow_stage, h_flow_stage, no_measure_periods, Qs_samples, times_samples, Qs_inlet_value)
 
 # Programme figure 7
