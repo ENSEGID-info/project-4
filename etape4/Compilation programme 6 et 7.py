@@ -69,6 +69,15 @@ def load_fig6_data(dir_path):
 # ================================================================
 # 2. CHARGEMENT DES DONNÉES — FIGURE 7 (AUTO-DETECT)
 # ================================================================
+"""
+    Charge les données nécessaires à la Figure 7 depuis un répertoire.
+
+    Cette fonction charge les fichiers suivants : `fig7_frequency`, `fig7_qs_gsd`, `fig7_time_samples`, 
+    et `fig7_time_seismic_power`, et retourne trois DataFrames contenant les données correspondantes.
+
+    Args:
+        dir_path (str): Le chemin du répertoire contenant les fichiers.
+    """
 def load_fig7_data(dir_path):
 
     f_frequency       = find_file(dir_path, "fig7_frequency")
